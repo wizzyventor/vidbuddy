@@ -90,35 +90,32 @@
     <button class="process-btn" onclick="sendToBot()">Process Video</button>
     <div id="status"></div>
 </div>
-
 <script>
     const tg = window.Telegram.WebApp;
-    tg.expand();
-
-    // Check if URL was passed from the bot
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('url')) {
-        document.getElementById('videoUrl').value = urlParams.get('url');
-    }
+    tg.expand(); // Ensures the app opens fully on your Tecno screen
 
     function sendToBot() {
-        const url = document.getElementById('videoUrl').value;
-        if (!url) {
-            tg.showAlert("Please enter a URL");
+        const urlInput = document.getElementById('videoUrl').value;
+        
+        if (!urlInput) {
+            tg.showAlert("Please paste a link first!");
             return;
         }
 
-        document.getElementById('status').innerText = "🚀 Sent! Closing app...";
+        // The object key "url" must match data.get("url") in your bot.py
+        const dataToSend = JSON.stringify({ url: urlInput });
+
+        // This is the bridge back to Termux
+        tg.sendData(dataToSend);
         
-        // CRITICAL: This sends the data AND closes the webview
-        tg.sendData(JSON.stringify({
-            "url": url,
-            "quality": "720"
-        }));
+        // Optional: Provide visual feedback before the app closes
+        document.getElementById('status').innerText = "Sending to VidBuddy...";
         
-        // If sendData fails to close it (in some versions), we force it
+        // Telegram usually closes the WebApp automatically after sendData
+        // but this ensures it happens smoothly
         setTimeout(() => { tg.close(); }, 500);
     }
 </script>
+
 </body>
 </html>
