@@ -2,120 +2,117 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VidBuddy Pro</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VidBuddy Web</title>
     <style>
         :root {
-            --bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
             --primary: #10b981;
-            --text: #f8fafc;
+            --bg: #0f172a;
+            --card: rgba(30, 41, 59, 0.7);
         }
 
         body {
             background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            margin: 0;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
-            align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
 
-        .glass-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
+        .container {
+            background: var(--card);
+            backdrop-filter: blur(10px);
+            padding: 2.5rem;
+            border-radius: 20px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 30px;
-            width: 90%;
-            max-width: 350px;
+            width: 100%;
+            max-width: 400px;
             text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        /* --- MEDIA QUERY FOR SMALLER DEVICES --- */
-        @media (max-width: 380px) {
-            .glass-card {
-                padding: 20px;
-                width: 85%;
-            }
-            h2 { font-size: 1.2rem; }
-            .process-btn { padding: 12px; }
-        }
-
-        .input-group {
-            background: rgba(0,0,0,0.2);
-            border-radius: 12px;
-            margin-bottom: 16px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
+        h1 { color: var(--primary); margin-bottom: 0.5rem; }
+        p { color: #94a3b8; margin-bottom: 2rem; }
 
         input {
             width: 100%;
-            background: transparent;
-            border: none;
             padding: 12px;
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #334155;
+            background: #1e293b;
             color: white;
-            outline: none;
-            text-align: center;
             box-sizing: border-box;
+            outline: none;
         }
 
-        .process-btn {
+        button {
+            width: 100%;
+            padding: 14px;
             background: var(--primary);
             color: white;
             border: none;
-            padding: 16px;
-            width: 100%;
-            border-radius: 14px;
-            font-weight: 600;
+            border-radius: 10px;
+            font-weight: bold;
             cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
         }
 
-        #status { margin-top: 15px; font-size: 12px; color: #10b981; }
+        button:hover { background: #059669; transform: translateY(-2px); }
+        button:disabled { background: #334155; cursor: not-allowed; }
+
+        #status { margin-top: 1.5rem; font-size: 0.9rem; color: #10b981; }
     </style>
 </head>
 <body>
-
-<div class="glass-card">
-    <h2>VidBuddy Pro</h2>
-    <p>Premium Downloader</p>
-
-    <div class="input-group">
-        <input type="text" id="videoUrl" placeholder="Paste link here...">
+    <div class="container">
+        <h1>VidBuddy Web</h1>
+        <p>Direct Video Downloader</p>
+        <input type="text" id="urlInput" placeholder="Paste video link here...">
+        <button id="dlBtn" onclick="handleDownload()">Download Video</button>
+        <div id="status"></div>
     </div>
 
-    <button class="process-btn" onclick="sendToBot()">Process Video</button>
-    <div id="status"></div>
-</div>
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.expand(); // Ensures the app opens fully on your Tecno screen
+    <script>
+        async function handleDownload() {
+            const url = document.getElementById('urlInput').value;
+            const btn = document.getElementById('dlBtn');
+            const status = document.getElementById('status');
 
-    function sendToBot() {
-        const urlInput = document.getElementById('videoUrl').value;
-        
-        if (!urlInput) {
-            tg.showAlert("Please paste a link first!");
-            return;
+            if (!url) return alert("Please paste a link!");
+
+            btn.disabled = true;
+            status.innerText = "⏳ Processing video (please wait)...";
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = "vidbuddy_video.mp4";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    status.innerText = "✅ Download started!";
+                } else {
+                    status.innerText = "❌ Error: Could not process video.";
+                }
+            } catch (err) {
+                status.innerText = "❌ Connection failed. Is the backend running?";
+            } finally {
+                btn.disabled = false;
+            }
         }
-
-        // The object key "url" must match data.get("url") in your bot.py
-        const dataToSend = JSON.stringify({ url: urlInput });
-
-        // This is the bridge back to Termux
-        tg.sendData(dataToSend);
-        
-        // Optional: Provide visual feedback before the app closes
-        document.getElementById('status').innerText = "Sending to VidBuddy...";
-        
-        // Telegram usually closes the WebApp automatically after sendData
-        // but this ensures it happens smoothly
-        setTimeout(() => { tg.close(); }, 500);
-    }
-</script>
-
+    </script>
 </body>
 </html>
