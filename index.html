@@ -10,20 +10,18 @@
             --bg: #0f172a;
             --card-bg: rgba(30, 41, 59, 0.7);
             --primary: #10b981;
-            --primary-glow: rgba(16, 185, 129, 0.4);
             --text: #f8fafc;
         }
 
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', sans-serif;
             margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            overflow: hidden;
         }
 
         .glass-card {
@@ -34,30 +32,22 @@
             padding: 30px;
             width: 90%;
             max-width: 350px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             text-align: center;
         }
 
-        .logo-area {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, var(--primary), #059669);
-            border-radius: 18px;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            box-shadow: 0 8px 16px var(--primary-glow);
+        /* --- MEDIA QUERY FOR SMALLER DEVICES --- */
+        @media (max-width: 380px) {
+            .glass-card {
+                padding: 20px;
+                width: 85%;
+            }
+            h2 { font-size: 1.2rem; }
+            .process-btn { padding: 12px; }
         }
-
-        h2 { margin: 0 0 8px; font-weight: 700; }
-        p { color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
 
         .input-group {
             background: rgba(0,0,0,0.2);
             border-radius: 12px;
-            padding: 4px;
             margin-bottom: 16px;
             border: 1px solid rgba(255,255,255,0.05);
         }
@@ -73,17 +63,6 @@
             box-sizing: border-box;
         }
 
-        select {
-            width: 100%;
-            background: rgba(0,0,0,0.2);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 10px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            outline: none;
-        }
-
         .process-btn {
             background: var(--primary);
             color: white;
@@ -92,43 +71,31 @@
             width: 100%;
             border-radius: 14px;
             font-weight: 600;
-            font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 4px 12px var(--primary-glow);
-            transition: all 0.2s ease;
         }
 
-        .process-btn:active { transform: scale(0.96); opacity: 0.9; }
-
-        #status { margin-top: 15px; font-size: 12px; color: #10b981; min-height: 18px; }
+        #status { margin-top: 15px; font-size: 12px; color: #10b981; }
     </style>
 </head>
 <body>
 
 <div class="glass-card">
-    <div class="logo-area">V</div>
-    <h2>VidBuddy</h2>
-    <p>Great Video Downloader</p>
+    <h2>VidBuddy Pro</h2>
+    <p>Premium Downloader</p>
 
     <div class="input-group">
-        <input type="text" id="videoUrl" placeholder="Paste video link here...">
+        <input type="text" id="videoUrl" placeholder="Paste link here...">
     </div>
 
-    <select id="quality">
-        <option value="720">720p (High Quality)</option>
-        <option value="360">360p (Data Saver)</option>
-    </select>
-
-    <button class="process-btn" onclick="sendToBot()">Get Video</button>
+    <button class="process-btn" onclick="sendToBot()">Process Video</button>
     <div id="status"></div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
-    tg.ready();
 
-    // Auto-fill URL if passed in the query string (from the bot)
+    // Check if URL was passed from the bot
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('url')) {
         document.getElementById('videoUrl').value = urlParams.get('url');
@@ -136,28 +103,22 @@
 
     function sendToBot() {
         const url = document.getElementById('videoUrl').value;
-        const quality = document.getElementById('quality').value;
-        const status = document.getElementById('status');
-
-        if (!url || !url.includes('http')) {
-            tg.HapticFeedback.notificationOccurred('error');
-            status.style.color = '#ef4444';
-            status.innerText = "Please enter a valid URL";
+        if (!url) {
+            tg.showAlert("Please enter a URL");
             return;
         }
 
-        status.style.color = '#10b981';
-        status.innerText = "Sending to VidBuddy...";
-        tg.HapticFeedback.impactOccurred('medium');
-
-        // This sends the JSON back to your Python bot's handle_webapp_data
+        document.getElementById('status').innerText = "🚀 Sent! Closing app...";
+        
+        // CRITICAL: This sends the data AND closes the webview
         tg.sendData(JSON.stringify({
-            "action": "download",
             "url": url,
-            "quality": quality
+            "quality": "720"
         }));
+        
+        // If sendData fails to close it (in some versions), we force it
+        setTimeout(() => { tg.close(); }, 500);
     }
 </script>
-
 </body>
 </html>
