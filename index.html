@@ -3,115 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VidBuddy Web</title>
+    <title>VidBuddy Pro Web</title>
     <style>
-        :root {
-            --primary: #10b981;
-            --bg: #0f172a;
-            --card: rgba(30, 41, 59, 0.7);
-        }
-
+        :root { --primary: #10b981; --bg: #0f172a; --card: rgba(30, 41, 59, 0.7); }
+        
         body {
             background-color: var(--bg);
             color: white;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
         }
 
         .container {
             background: var(--card);
-            backdrop-filter: blur(10px);
-            padding: 2.5rem;
-            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
-            max-width: 400px;
+            width: 100%; max-width: 500px;
             text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        h1 { color: var(--primary); margin-bottom: 0.5rem; }
-        p { color: #94a3b8; margin-bottom: 2rem; }
+        /* RESPONSIVE DESIGN (Media Query) */
+        @media (max-width: 480px) {
+            .container { padding: 1rem; border-radius: 0; background: transparent; border: none; }
+            h1 { font-size: 1.5rem; }
+        }
 
         input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 1.5rem;
-            border-radius: 10px;
-            border: 1px solid #334155;
-            background: #1e293b;
-            color: white;
-            box-sizing: border-box;
-            outline: none;
+            width: 100%; padding: 15px; margin: 1rem 0;
+            border-radius: 12px; border: 1px solid #334155;
+            background: #1e293b; color: white; box-sizing: border-box;
         }
 
-        button {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+        .preview-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px; padding: 10px; margin-bottom: 1rem;
+            display: none; /* Hidden until link is parsed */
         }
 
-        button:hover { background: #059669; transform: translateY(-2px); }
-        button:disabled { background: #334155; cursor: not-allowed; }
+        .preview-card img { width: 100%; border-radius: 8px; }
 
-        #status { margin-top: 1.5rem; font-size: 0.9rem; color: #10b981; }
+        .btn {
+            width: 100%; padding: 15px;
+            background: var(--primary); color: white;
+            border: none; border-radius: 12px;
+            font-weight: bold; cursor: pointer;
+        }
+
+        .ad-slot {
+            margin: 20px 0; width: 100%; max-width: 728px;
+            min-height: 90px; background: rgba(255,255,255,0.05);
+            display: flex; align-items: center; justify-content: center;
+            border: 1px dashed #334155; color: #475569;
+        }
     </style>
 </head>
 <body>
+
+    <div class="ad-slot">
+        ADVERTISEMENT
+    </div>
+
     <div class="container">
-        <h1>VidBuddy Web</h1>
-        <p>Direct Video Downloader</p>
-        <input type="text" id="urlInput" placeholder="Paste video link here...">
-        <button id="dlBtn" onclick="handleDownload()">Download Video</button>
-        <div id="status"></div>
+        <h1>VidBuddy Pro</h1>
+        <p>Premium Video Downloader</p>
+        
+        <input type="text" id="urlInput" placeholder="Paste link..." oninput="fetchInfo()">
+        
+        <div id="preview" class="preview-card">
+            <img id="thumb" src="" alt="Thumbnail">
+            <h4 id="videoTitle"></h4>
+            <select id="formatSelect" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px;"></select>
+            <button class="btn" id="dlBtn" onclick="startDownload()">Download Now</button>
+        </div>
+
+        <div id="status" style="margin-top:10px;"></div>
     </div>
 
     <script>
-        async function handleDownload() {
+        let currentUrl = "";
+
+        async function fetchInfo() {
             const url = document.getElementById('urlInput').value;
-            const btn = document.getElementById('dlBtn');
-            const status = document.getElementById('status');
-
-            if (!url) return alert("Please paste a link!");
-
-            btn.disabled = true;
-            status.innerText = "⏳ Processing video (please wait)...";
-
+            if (url.length < 10) return;
+            
+            document.getElementById('status').innerText = "🔍 Fetching video info...";
+            
             try {
-                const response = await fetch('http://127.0.0.1:5000/download', {
+                const res = await fetch('http://127.0.0.1:5000/info', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ url: url })
                 });
-
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const downloadUrl = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = downloadUrl;
-                    a.download = "vidbuddy_video.mp4";
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    status.innerText = "✅ Download started!";
-                } else {
-                    status.innerText = "❌ Error: Could not process video.";
+                const data = await res.json();
+                
+                if (data.title) {
+                    currentUrl = url;
+                    document.getElementById('preview').style.display = 'block';
+                    document.getElementById('thumb').src = data.thumbnail;
+                    document.getElementById('videoTitle').innerText = data.title;
+                    
+                    const select = document.getElementById('formatSelect');
+                    select.innerHTML = data.formats.map(f => `<option value="${f.format_id}">${f.resolution} (${f.ext})</option>`).join('');
+                    document.getElementById('status').innerText = "";
                 }
-            } catch (err) {
-                status.innerText = "❌ Connection failed. Is the backend running?";
-            } finally {
-                btn.disabled = false;
+            } catch (e) { console.log(e); }
+        }
+
+        async function startDownload() {
+            const btn = document.getElementById('dlBtn');
+            const format = document.getElementById('formatSelect').value;
+            btn.disabled = true;
+            document.getElementById('status').innerText = "📥 Downloading to your ProBook...";
+
+            const res = await fetch('http://127.0.0.1:5000/download', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ url: currentUrl, format_id: format })
+            });
+
+            if (res.ok) {
+                const blob = await res.blob();
+                const a = document.createElement('a');
+                a.href = window.URL.createObjectURL(blob);
+                a.download = "vidbuddy_video.mp4";
+                a.click();
+                document.getElementById('status').innerText = "✅ Done!";
             }
+            btn.disabled = false;
         }
     </script>
 </body>
