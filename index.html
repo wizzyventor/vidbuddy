@@ -82,43 +82,60 @@
 
         <div id="status" style="margin-top:10px;"></div>
     </div>
-
     <script>
-        let currentUrl = "";
+    let currentUrl = "";
 
-        async function fetchInfo() {
-            const url = document.getElementById('urlInput').value;
-            if (url.length < 10) return;
+    // Toggle Dark/Light Mode
+    function toggleTheme() {
+        document.body.style.filter = document.body.style.filter === 'invert(1)' ? 'invert(0)' : 'invert(1)';
+    }
+
+    async function fetchInfo() {
+        const url = document.getElementById('urlInput').value;
+        if (url.length < 10) return;
+        
+        document.getElementById('status').innerText = "🔍 Fetching video info...";
+        
+        try {
+            const res = await fetch('http://127.0.0.1:5000/info', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ url: url })
+            });
+            const data = await res.json();
             
-            document.getElementById('status').innerText = "🔍 Fetching video info...";
-            
-            try {
-                const res = await fetch('http://127.0.0.1:5000/info', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ url: url })
-                });
-                const data = await res.json();
+            if (data.title) {
+                currentUrl = url;
+                document.getElementById('preview').style.display = 'block';
+                document.getElementById('thumb').src = data.thumbnail;
+                document.getElementById('videoTitle').innerText = data.title;
                 
-                if (data.title) {
-                    currentUrl = url;
-                    document.getElementById('preview').style.display = 'block';
-                    document.getElementById('thumb').src = data.thumbnail;
-                    document.getElementById('videoTitle').innerText = data.title;
-                    
-                    const select = document.getElementById('formatSelect');
-                    select.innerHTML = data.formats.map(f => `<option value="${f.format_id}">${f.resolution} (${f.ext})</option>`).join('');
-                    document.getElementById('status').innerText = "";
-                }
-            } catch (e) { console.log(e); }
+                const select = document.getElementById('formatSelect');
+                select.innerHTML = data.formats.map(f => 
+                    `<option value="${f.format_id}">${f.resolution} (${f.ext})</option>`
+                ).join('');
+                document.getElementById('status').innerText = "";
+            }
+        } catch (e) { 
+            document.getElementById('status').innerText = "❌ Backend not connected.";
+            console.log(e); 
         }
+    }
 
-        async function startDownload() {
-            const btn = document.getElementById('dlBtn');
-            const format = document.getElementById('formatSelect').value;
-            btn.disabled = true;
-            document.getElementById('status').innerText = "📥 Downloading to your ProBook...";
+    // This fixes the 'startDownloadWithAd' issue
+    async function startDownloadWithAd() {
+        // Here you can trigger an ad pop-up manually if your network allows it
+        // Then proceed to the actual download
+        startDownload();
+    }
 
+    async function startDownload() {
+        const btn = document.getElementById('dlBtn');
+        const format = document.getElementById('formatSelect').value;
+        btn.disabled = true;
+        document.getElementById('status').innerText = "📥 Downloading to your ProBook...";
+
+        try {
             const res = await fetch('http://127.0.0.1:5000/download', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -132,9 +149,18 @@
                 a.download = "vidbuddy_video.mp4";
                 a.click();
                 document.getElementById('status').innerText = "✅ Done!";
+                
+                // Feature: Simple Download History (Local Storage)
+                let history = JSON.parse(localStorage.getItem('vidbuddy_history') || "[]");
+                history.push(document.getElementById('videoTitle').innerText);
+                localStorage.setItem('vidbuddy_history', JSON.stringify(history.slice(-5)));
             }
-            btn.disabled = false;
+        } catch (e) {
+            document.getElementById('status').innerText = "❌ Download failed.";
         }
-    </script>
+        btn.disabled = false;
+    }
+</script>
+
 </body>
 </html>
