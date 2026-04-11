@@ -4,176 +4,181 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="monetag" content="4fe1cc755bdbdcbcc1bf2ff5a99898d3">
-    <title>VidBuddy Pro Web</title>
+    <title>VidBuddy Web</title>
     <script src="https://pl29119326.profitablecpmratenetwork.com/80/9e/f9/809ef9653380af167ff265991b928422.js"></script>
     <style>
-        :root { --primary: #10b981; --bg: #0f172a; --card: rgba(30, 41, 59, 0.7); }
+        :root { --primary: #10b981; --bg: #0f172a; --card: rgba(30, 41, 59, 0.7); --accent: #3b82f6; }
+        body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; transition: 0.3s; }
+        body.light-mode { --bg: #f8fafc; --card: #ffffff; color: #1e293b; }
+        body.light-mode input { background: #f1f5f9; color: #1e293b; border-color: #cbd5e1; }
+
+        .container { background: var(--card); backdrop-filter: blur(12px); padding: 2rem; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 500px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
         
-        body {
-            background-color: var(--bg);
-            color: white;
-            font-family: 'Inter', system-ui, sans-serif;
-            margin: 0; padding: 20px;
-            display: flex; flex-direction: column; align-items: center;
-        }
+        input { width: 100%; padding: 15px; margin: 1rem 0; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: white; box-sizing: border-box; }
+        
+        .preview-card { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 10px; margin-bottom: 1rem; display: none; }
+        .preview-card img { width: 100%; border-radius: 8px; margin-bottom: 10px; }
 
-        /* Add this to your style block */
-body.light-mode {
-    --bg: #f8fafc;
-    --card: #ffffff;
-    color: #1e293b;
-}
-body.light-mode input {
-    background: #f1f5f9;
-    color: #1e293b;
-    border-color: #cbd5e1;
-}
+        /* Progress Bar Styling */
+        .progress-container { width: 100%; height: 12px; background: #334155; border-radius: 10px; margin: 15px 0; display: none; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; background: var(--primary); transition: width 0.2s; }
+        
+        .btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-cancel { background: #ef4444; margin-top: 10px; display: none; }
 
-        .container {
-            background: var(--card);
-            backdrop-filter: blur(12px);
-            padding: 2rem;
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%; max-width: 500px;
-            text-align: center;
-        }
+        .ad-slot { margin: 20px 0; width: 100%; max-width: 728px; min-height: 90px; background: rgba(255,255,255,0.05); border: 1px dashed #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-        /* RESPONSIVE DESIGN (Media Query) */
-        @media (max-width: 480px) {
-            .container { padding: 1rem; border-radius: 0; background: transparent; border: none; }
-            h1 { font-size: 1.5rem; }
-        }
-
-        input {
-            width: 100%; padding: 15px; margin: 1rem 0;
-            border-radius: 12px; border: 1px solid #334155;
-            background: #1e293b; color: white; box-sizing: border-box;
-        }
-
-        .preview-card {
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px; padding: 10px; margin-bottom: 1rem;
-            display: none; /* Hidden until link is parsed */
-        }
-
-        .preview-card img { width: 100%; border-radius: 8px; }
-
-        .btn {
-            width: 100%; padding: 15px;
-            background: var(--primary); color: white;
-            border: none; border-radius: 12px;
-            font-weight: bold; cursor: pointer;
-        }
-
-        .ad-slot {
-            margin: 20px 0; width: 100%; max-width: 728px;
-            min-height: 90px; background: rgba(255,255,255,0.05);
-            display: flex; align-items: center; justify-content: center;
-            border: 1px dashed #334155; color: #475569;
-        }
+        @media (max-width: 480px) { .container { padding: 1rem; border-radius: 0; background: transparent; border: none; } }
     </style>
 </head>
 <body>
-    <button onclick="toggleTheme()" style="position: absolute; top: 10px; right: 10px; padding: 5px 10px; border-radius: 8px; cursor: pointer;">🌓 Toggle Color Mode</button>
-    <div class="ad-slot">
+
+    <button onclick="toggleTheme()" style="position: absolute; top: 10px; right: 10px; padding: 8px; border-radius: 50%; border: none; cursor: pointer; background: var(--card);">🌓</button>
+
+    <div class="ad-slot" id="banner-ad">
+        <small style="color: #64748b; margin-bottom: 5px;">Advert</small>
         <script src="https://pl29119327.profitablecpmratenetwork.com/bb/de/f6/bbdef6f29c8163537c613a0fc6cc21e2.js"></script>
     </div>
 
     <div class="container">
         <h1>VidBuddy Pro</h1>
-        <p>Premium Video Downloader</p>
+        <p>Fast Video Downloader for all Video URL's</p>
         
-        <input type="text" id="urlInput" placeholder="Paste link..." oninput="fetchInfo()">
+        <input type="text" id="urlInput" placeholder="Paste video link here..." oninput="fetchInfo()">
         
         <div id="preview" class="preview-card">
             <img id="thumb" src="" alt="Thumbnail">
             <h4 id="videoTitle"></h4>
+            <p id="fileSize" style="font-size: 0.9rem; color: var(--primary);"></p>
             <select id="formatSelect" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px;"></select>
+            
+            <div class="progress-container" id="progCont">
+                <div class="progress-bar" id="progBar"></div>
+            </div>
+            <p id="progText" style="font-size: 0.8rem;"></p>
+
             <button class="btn" id="dlBtn" onclick="startDownloadWithAd()">Download Now</button>
+            <button class="btn btn-cancel" id="cancelBtn" onclick="cancelDownload()">Cancel Download</button>
         </div>
 
         <div id="status" style="margin-top:10px;"></div>
     </div>
-    <script>
-    let currentUrl = "";
 
-    // Toggle Dark/Light Mode
-    function toggleTheme() {
-    document.body.classList.toggle('light-mode');
+    <script>
+        let currentUrl = "";
+        let abortController = null;
+
+        function toggleTheme() { document.body.classList.toggle('light-mode'); }
+
+        async function fetchInfo() {
+            const url = document.getElementById('urlInput').value;
+            if (url.length < 10) return;
+            document.getElementById('status').innerText = "🔍 Analyzing video data...";
+            
+            try {
+                const res = await fetch('https://vidbuddy.onrender.com/info', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ url: url })
+                });
+                const data = await res.json();
+                
+                if (data.title) {
+                    currentUrl = url;
+                    document.getElementById('preview').style.display = 'block';
+                    document.getElementById('thumb').src = data.thumbnail;
+                    document.getElementById('videoTitle').innerText = data.title;
+                    
+                    const select = document.getElementById('formatSelect');
+                    select.innerHTML = data.formats.map(f => 
+                        `<option value="${f.format_id}">${f.resolution} (${f.ext})</option>`
+                    ).join('');
+                    document.getElementById('status').innerText = "";
+                }
+            } catch (e) { document.getElementById('status').innerText = "❌ Connection failed."; }
+        }
+
+        function startDownloadWithAd() { startDownload(); }
+
+        async function startDownload() {
+            const btn = document.getElementById('dlBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const progCont = document.getElementById('progCont');
+            const progBar = document.getElementById('progBar');
+            const progText = document.getElementById('progText');
+            const format = document.getElementById('formatSelect').value;
+
+            abortController = new AbortController();
+            btn.disabled = true;
+            cancelBtn.style.display = "block";
+            progCont.style.display = "block";
+            document.getElementById('status').innerText = "📥 Requesting file...";
+
+            try {
+                const response = await fetch('https://vidbuddy.onrender.com/download', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ url: currentUrl, format_id: format }),
+    signal: abortController.signal
+});
+                const disposition = response.headers.get('Content-Disposition');
+let filename = "video.mp4";
+if (disposition && disposition.indexOf('filename=') !== -1) {
+    filename = disposition.split('filename=')[1].replaceAll('"', '');
 }
 
-    async function fetchInfo() {
-        const url = document.getElementById('urlInput').value;
-        if (url.length < 10) return;
-        
-        document.getElementById('status').innerText = "🔍 Fetching video info...";
-        
-        try {
-            const res = await fetch('https://vidbuddy.onrender.com/info', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ url: url })
-            });
-            const data = await res.json();
-            
-            if (data.title) {
-                currentUrl = url;
-                document.getElementById('preview').style.display = 'block';
-                document.getElementById('thumb').src = data.thumbnail;
-                document.getElementById('videoTitle').innerText = data.title;
+                if (!response.ok) throw new Error("Server error");
+
+                const contentLength = response.headers.get('Content-Length');
+                const total = parseInt(contentLength, 10);
+                let loaded = 0;
+
+                const reader = response.body.getReader();
+                const chunks = [];
+
+                while(true) {
+                    const {done, value} = await reader.read();
+                    if (done) break;
+                    chunks.push(value);
+                    loaded += value.length;
+                    
+                    if (total) {
+                        const percent = Math.round((loaded / total) * 100);
+                        progBar.style.width = percent + "%";
+                        progText.innerText = `Transferring: ${percent}% (${(loaded/1024/1024).toFixed(1)}MB / ${(total/1024/1024).toFixed(1)}MB)`;
+                    }
+                }
+
+               const blob = new Blob(chunks);
+const a = document.createElement('a');
+a.href = URL.createObjectURL(blob);
+a.download = filename; // Now uses the cleaned video title!
+a.click();
                 
-                const select = document.getElementById('formatSelect');
-                select.innerHTML = data.formats.map(f => 
-                    `<option value="${f.format_id}">${f.resolution} (${f.ext})</option>`
-                ).join('');
-                document.getElementById('status').innerText = "";
+                document.getElementById('status').innerText = "✅ Download Complete!";
+                resetUI();
+
+            } catch (e) {
+                if (e.name === 'AbortError') {
+                    document.getElementById('status').innerText = "⚠️ Download Cancelled.";
+                } else {
+                    document.getElementById('status').innerText = "❌ Error occurred.";
+                }
+                resetUI();
             }
-        } catch (e) { 
-            document.getElementById('status').innerText = "❌ Backend not connected.";
-            console.log(e); 
         }
-    }
 
-    // This fixes the 'startDownloadWithAd' issue
-    async function startDownloadWithAd() {
-        // Here you can trigger an ad pop-up manually if your network allows it
-        // Then proceed to the actual download
-        startDownload();
-    }
-
-    async function startDownload() {
-        const btn = document.getElementById('dlBtn');
-        const format = document.getElementById('formatSelect').value;
-        btn.disabled = true;
-        document.getElementById('status').innerText = "📥 Downloading...";
-
-        try {
-            const res = await fetch('https://vidbuddy.onrender.com/download', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ url: currentUrl, format_id: format })
-            });
-
-            if (res.ok) {
-                const blob = await res.blob();
-                const a = document.createElement('a');
-                a.href = window.URL.createObjectURL(blob);
-                a.download = "vidbuddy_video.mp4";
-                a.click();
-                document.getElementById('status').innerText = "✅ Done!";
-                
-                // Feature: Simple Download History (Local Storage)
-                let history = JSON.parse(localStorage.getItem('vidbuddy_history') || "[]");
-                history.push(document.getElementById('videoTitle').innerText);
-                localStorage.setItem('vidbuddy_history', JSON.stringify(history.slice(-5)));
-            }
-        } catch (e) {
-            document.getElementById('status').innerText = "❌ Download failed.";
+        function cancelDownload() {
+            if (abortController) abortController.abort();
         }
-        btn.disabled = false;
-    }
-</script>
 
+        function resetUI() {
+            document.getElementById('dlBtn').disabled = false;
+            document.getElementById('cancelBtn').style.display = "none";
+            document.getElementById('progCont').style.display = "none";
+            document.getElementById('progBar').style.width = "0%";
+            document.getElementById('progText').innerText = "";
+        }
+    </script>
 </body>
 </html>
