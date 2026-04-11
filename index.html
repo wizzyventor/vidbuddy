@@ -16,6 +16,18 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
+        /* Add this to your style block */
+body.light-mode {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    color: #1e293b;
+}
+body.light-mode input {
+    background: #f1f5f9;
+    color: #1e293b;
+    border-color: #cbd5e1;
+}
+
         .container {
             background: var(--card);
             backdrop-filter: blur(12px);
@@ -62,7 +74,7 @@
     </style>
 </head>
 <body>
-
+    <button onclick="toggleTheme()" style="position: absolute; top: 10px; right: 10px; padding: 5px 10px; border-radius: 8px; cursor: pointer;">🌓 Toggle Color Mode</button>
     <div class="ad-slot">
         <script src="https://pl29119327.profitablecpmratenetwork.com/bb/de/f6/bbdef6f29c8163537c613a0fc6cc21e2.js"></script>
     </div>
@@ -87,8 +99,8 @@
 
     // Toggle Dark/Light Mode
     function toggleTheme() {
-        document.body.style.filter = document.body.style.filter === 'invert(1)' ? 'invert(0)' : 'invert(1)';
-    }
+    document.body.classList.toggle('light-mode');
+}
 
     async function fetchInfo() {
         const url = document.getElementById('urlInput').value;
@@ -97,7 +109,7 @@
         document.getElementById('status').innerText = "🔍 Fetching video info...";
         
         try {
-            const res = await fetch('http://127.0.0.1:5000/info', {
+            const res = await fetch('https://vidbuddy.onrender.com/info', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ url: url })
@@ -133,10 +145,10 @@
         const btn = document.getElementById('dlBtn');
         const format = document.getElementById('formatSelect').value;
         btn.disabled = true;
-        document.getElementById('status').innerText = "📥 Downloading to your ProBook...";
+        document.getElementById('status').innerText = "📥 Downloading...";
 
         try {
-            const res = await fetch('http://127.0.0.1:5000/download', {
+            const res = await fetch('https://vidbuddy.onrender.com/download', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ url: currentUrl, format_id: format })
